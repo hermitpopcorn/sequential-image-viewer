@@ -1,0 +1,68 @@
+{
+  "name": "sequential-image-viewer",
+  "displayName": "Sequential Image Viewer",
+  "description": "Makes it easier to view image files that are named sequentially.",
+  "keywords": ["image", "viewer", "sequence"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hermitpopcorn/sequential-image-viewer.git"
+  },
+  "publisher": "Dani Nugraha",
+  "icon": "images/icon.png",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.71.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceExtname in ext.imageExtensions",
+          "command": "sequential-image-viewer.openFile",
+          "group": "navigation"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "category": "Sequential Image Viewer",
+        "command": "sequential-image-viewer.openFile",
+        "title": "Open image file in SVI..."
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.71.0",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "@vscode/test-electron": "^2.1.5",
+    "eslint": "^8.20.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0",
+    "vsce": "^2.11.0"
+  }
+}
