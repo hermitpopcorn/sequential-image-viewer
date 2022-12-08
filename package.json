@@ -39,6 +39,16 @@
         "category": "Sequential Image Viewer",
         "command": "sequential-image-viewer.openFile",
         "title": "Open image file in SVI..."
+      },
+      {
+        "category": "Sequential Image Viewer",
+        "command": "sequential-image-viewer.nextImage",
+        "title": "Switch to next image in SVI"
+      },
+      {
+        "category": "Sequential Image Viewer",
+        "command": "sequential-image-viewer.prevImage",
+        "title": "Switch to previous image in SVI"
       }
     ]
   },

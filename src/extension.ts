@@ -4,8 +4,21 @@ const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp'];
 
 vscode.commands.executeCommand('setContext', 'ext.imageExtensions', IMAGE_EXTENSIONS.map(i => `.${i}`));
 
+interface SVIMessage {
+	command: 'prev' | 'next'
+}
+
+interface SVIInstance {
+	panel: vscode.WebviewPanel,
+	imageFilePaths: vscode.Uri[],
+	currentIndex: number,
+	disposed: boolean,
+}
+
+let instances: SVIInstance[] = []
+
 export function activate(context: vscode.ExtensionContext) {
-	let disposable = vscode.commands.registerCommand('sequential-image-viewer.openFile', async (args) => {
+	const disposable = vscode.commands.registerCommand('sequential-image-viewer.openFile', async (args) => {
 		let imageFilePath: vscode.Uri[]|undefined;
 		if (args === undefined) {
 			// If not opened through context menu, show open file dialog
@@ -22,7 +35,6 @@ export function activate(context: vscode.ExtensionContext) {
 			// Get file path from args
 			imageFilePath = [vscode.Uri.parse(args)];
 		}
-		console.log(imageFilePath);
 
 		// Cancel if undefined (which means the user didn't select any file)
 		if (imageFilePath === undefined) {
@@ -36,17 +48,17 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Sort by filename (since originally findFiles also sorted it by extension)
 		imageFilePaths.sort((a, b) => {
-			let left = a.fsPath.split('/').pop() ?? '';
-			let right = b.fsPath.split('/').pop() ?? '';
+			const left = a.fsPath.split('/').pop() ?? '';
+			const right = b.fsPath.split('/').pop() ?? '';
 			return left.localeCompare(right);
 		});
 
+		// Determine index by comparing paths
 		for (let index = 0; index < imageFilePaths.length; index++) {
 			if (imageFilePaths[index].fsPath === imageFilePath[0].fsPath) {
 				currentIndex = index;
 			}
 		}
-
 		if (currentIndex === undefined) {
 			vscode.window.showErrorMessage("Could not determine image file's index in directory.");
 			return;
@@ -64,45 +76,81 @@ export function activate(context: vscode.ExtensionContext) {
 			},
 		);
 
+		let instance: SVIInstance = {
+			panel,
+			imageFilePaths,
+			currentIndex,
+			disposed: false,
+		}
+		panel.onDidDispose(() => {
+			const index = instances.indexOf(instance)
+			if (index >= 0) {
+				instances.splice(index, 1)
+			}
+		})
+
 		// Handle messages from the webview
 		panel.webview.onDidReceiveMessage(
-			message => {
-				let toIndex = currentIndex!;
+			(message: SVIMessage) => {
 				if (message.command === 'next') {
-					toIndex += 1;
+					changeImage(instance, instance.currentIndex + 1);
 				}
 				if (message.command === 'prev') {					
-					toIndex -= 1;
+					changeImage(instance, instance.currentIndex - 1);
 				}
-				if (toIndex < 0) {
-					toIndex = imageFilePaths.length - 1;
-				}
-				else if (toIndex >= imageFilePaths.length) {
-					toIndex = 0;
-				}
-
-				currentIndex = toIndex;
-				panel.webview.html = generateHtml(panel, { uri: imageFilePaths[toIndex], index: currentIndex + 1, of: imageFilePaths.length });
-				panel.webview.postMessage({ command: 'scroll-to-top' });
 			},
 			undefined,
 			context.subscriptions,
 		);
-		
-		panel.webview.html = generateHtml(panel, { uri: imageFilePath[0], index: currentIndex + 1, of: imageFilePaths.length });
+
+		panel.webview.html = generateHtml(panel, { uri: imageFilePath[0], index: instance.currentIndex, of: imageFilePaths.length });
+
+		// Add to instances list
+		instances.push(instance)
 	});
 
 	context.subscriptions.push(disposable);
+
+	// Register commands
+	context.subscriptions.push(vscode.commands.registerCommand('sequential-image-viewer.nextImage', () => {
+		for (const instance of instances) {
+			changeImage(instance, instance.currentIndex + 1);
+		}
+	}));
+	context.subscriptions.push(vscode.commands.registerCommand('sequential-image-viewer.prevImage', () => {
+		for (const instance of instances) {
+			changeImage(instance, instance.currentIndex - 1);
+		}
+	}));
 }
 
-export function deactivate() {}
+export function deactivate() {
+	for (const instance of instances) {
+		instance.panel.dispose()
+	}
+}
+
+function changeImage(instance: SVIInstance, toIndex: number) {
+	// Wrap around to last index if negative, and wrap back to first index if larger than image count
+	if (toIndex < 0) {
+		toIndex = instance.imageFilePaths.length - 1;
+	}
+	else if (toIndex >= instance.imageFilePaths.length) {
+		toIndex = 0;
+	}
+
+	instance.panel.webview.html = generateHtml(instance.panel, { uri: instance.imageFilePaths[toIndex], index: toIndex, of: instance.imageFilePaths.length });
+	instance.panel.webview.postMessage({ command: 'scroll-to-top' });
+
+	instance.currentIndex = toIndex;
+}
 
 function generateHtml(panel: vscode.WebviewPanel, image: { uri: vscode.Uri, index?: number, of?: number }): string {
 	// Set title from filename (SIV ({index}) {filename})
 	const title = image.uri.path.split('/').pop();
 	let index = '';
 	if (image.index !== undefined) {
-		index = '(' + image.index.toString();
+		index = '(' + (image.index + 1).toString();
 		if (image.of !== undefined) {
 			index += '/' + image.of.toString();
 		}
