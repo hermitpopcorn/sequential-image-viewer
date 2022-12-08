@@ -15,10 +15,10 @@ interface SVIInstance {
 	disposed: boolean,
 }
 
-let instances: SVIInstance[] = []
+let instances: SVIInstance[] = [];
 
 export function activate(context: vscode.ExtensionContext) {
-	setWhenClause()
+	setWhenClause();
 
 	const disposable = vscode.commands.registerCommand('sequential-image-viewer.openFile', async (args) => {
 		let imageFilePath: vscode.Uri[]|undefined;
@@ -83,14 +83,14 @@ export function activate(context: vscode.ExtensionContext) {
 			imageFilePaths,
 			currentIndex,
 			disposed: false,
-		}
+		};
 		panel.onDidDispose(() => {
-			const index = instances.indexOf(instance)
+			const index = instances.indexOf(instance);
 			if (index >= 0) {
-				instances.splice(index, 1)
-				setWhenClause()
+				instances.splice(index, 1);
+				setWhenClause();
 			}
-		})
+		});
 
 		// Handle messages from the webview
 		panel.webview.onDidReceiveMessage(
@@ -109,8 +109,8 @@ export function activate(context: vscode.ExtensionContext) {
 		panel.webview.html = generateHtml(panel, { uri: imageFilePath[0], index: instance.currentIndex, of: imageFilePaths.length });
 
 		// Add to instances list
-		instances.push(instance)
-		setWhenClause()
+		instances.push(instance);
+		setWhenClause();
 	});
 
 	context.subscriptions.push(disposable);
@@ -130,7 +130,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {
 	for (const instance of instances) {
-		instance.panel.dispose()
+		instance.panel.dispose();
 	}
 }
 
