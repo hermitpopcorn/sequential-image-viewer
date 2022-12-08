@@ -9,4 +9,4 @@ Sometimes I do things like translating images or make edits following instructio
 This extension considers the following formats to be image files: ```.png, jpg, jpeg, gif, svg, webp, bmp```. I haven't tested for them all, though 😅
 
 ## Build
-```yarn install``` to install dependencies and then ```./node_modules/vsce/vsce package``` to make it into a VSIX package.
+```yarn install``` to install dependencies and then ```./node_modules/@vscode/vsce/vsce package --no-yarn``` to make it into a VSIX package (```--no-yarn``` for now because I migrated this to yarn berry and I didn't know that breaks vsce).
