@@ -18,6 +18,8 @@ interface SVIInstance {
 let instances: SVIInstance[] = []
 
 export function activate(context: vscode.ExtensionContext) {
+	setWhenClause()
+
 	const disposable = vscode.commands.registerCommand('sequential-image-viewer.openFile', async (args) => {
 		let imageFilePath: vscode.Uri[]|undefined;
 		if (args === undefined) {
@@ -86,6 +88,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const index = instances.indexOf(instance)
 			if (index >= 0) {
 				instances.splice(index, 1)
+				setWhenClause()
 			}
 		})
 
@@ -107,6 +110,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Add to instances list
 		instances.push(instance)
+		setWhenClause()
 	});
 
 	context.subscriptions.push(disposable);
@@ -229,4 +233,8 @@ function generateHtml(panel: vscode.WebviewPanel, image: { uri: vscode.Uri, inde
 			</body>
 		</html>
 	`;
+}
+
+function setWhenClause() {
+	vscode.commands.executeCommand('setContext', 'sequential-image-viewer.someInstanceOpen', instances.length > 0);
 }

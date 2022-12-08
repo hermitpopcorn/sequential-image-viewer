@@ -43,12 +43,14 @@
       {
         "category": "Sequential Image Viewer",
         "command": "sequential-image-viewer.nextImage",
-        "title": "Switch to next image in SVI"
+        "title": "Switch to next image in SVI",
+        "when": "sequential-image-viewer.someInstanceOpen === true"
       },
       {
         "category": "Sequential Image Viewer",
         "command": "sequential-image-viewer.prevImage",
-        "title": "Switch to previous image in SVI"
+        "title": "Switch to previous image in SVI",
+        "when": "sequential-image-viewer.someInstanceOpen === true"
       }
     ]
   },
