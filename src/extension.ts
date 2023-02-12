@@ -52,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
 		imageFilePaths.sort((a, b) => {
 			const left = a.fsPath.split('/').pop() ?? '';
 			const right = b.fsPath.split('/').pop() ?? '';
-			return left.localeCompare(right);
+			return left.localeCompare(right, undefined, { numeric: true, sensitivity: 'base' });
 		});
 
 		// Determine index by comparing paths
