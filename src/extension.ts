@@ -4,18 +4,18 @@ const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp'];
 
 vscode.commands.executeCommand('setContext', 'ext.imageExtensions', IMAGE_EXTENSIONS.map(i => `.${i}`));
 
-interface SVIMessage {
+interface SIVMessage {
 	command: 'prev' | 'next'
 }
 
-interface SVIInstance {
+interface SIVInstance {
 	panel: vscode.WebviewPanel,
 	imageFilePaths: vscode.Uri[],
 	currentIndex: number,
 	disposed: boolean,
 }
 
-let instances: SVIInstance[] = [];
+let instances: SIVInstance[] = [];
 
 export function activate(context: vscode.ExtensionContext) {
 	setWhenClause();
@@ -78,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
 			},
 		);
 
-		let instance: SVIInstance = {
+		let instance: SIVInstance = {
 			panel,
 			imageFilePaths,
 			currentIndex,
@@ -94,7 +94,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Handle messages from the webview
 		panel.webview.onDidReceiveMessage(
-			(message: SVIMessage) => {
+			(message: SIVMessage) => {
 				if (message.command === 'next') {
 					changeImage(instance, instance.currentIndex + 1);
 				}
@@ -134,7 +134,7 @@ export function deactivate() {
 	}
 }
 
-function changeImage(instance: SVIInstance, toIndex: number) {
+function changeImage(instance: SIVInstance, toIndex: number) {
 	// Wrap around to last index if negative, and wrap back to first index if larger than image count
 	if (toIndex < 0) {
 		toIndex = instance.imageFilePaths.length - 1;

@@ -38,18 +38,18 @@
       {
         "category": "Sequential Image Viewer",
         "command": "sequential-image-viewer.openFile",
-        "title": "Open image file in SVI..."
+        "title": "Open image file in SIV..."
       },
       {
         "category": "Sequential Image Viewer",
         "command": "sequential-image-viewer.nextImage",
-        "title": "Switch to next image in SVI",
+        "title": "Switch to next image in SIV",
         "when": "sequential-image-viewer.someInstanceOpen === true"
       },
       {
         "category": "Sequential Image Viewer",
         "command": "sequential-image-viewer.prevImage",
-        "title": "Switch to previous image in SVI",
+        "title": "Switch to previous image in SIV",
         "when": "sequential-image-viewer.someInstanceOpen === true"
       }
     ]
